@@ -4,10 +4,19 @@ on:
   push: {}
   pull_request: {}
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   build-docs:
     name: Build documentation
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
