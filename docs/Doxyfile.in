@@ -3,14 +3,16 @@
 
 PROJECT_NAME           = "@PROJECT_NAME@"
 PROJECT_NUMBER         = "@PROJECT_VERSION@"
+PROJECT_BRIEF          = "Header-only C++23 library for safe, zero-copy parsing of packet buffers. <a href=\"https://llmxio.github.io/vbvx/annotated.html\" target=\"_blank\">Annotated API Docs</a>"
 OUTPUT_DIRECTORY       = "@CMAKE_BINARY_DIR@/docs"
 CREATE_SUBDIRS         = YES
 OUTPUT_LANGUAGE        = English
 # Input files and patterns
 INPUT                  = "@CMAKE_SOURCE_DIR@"
-FILE_PATTERNS          = *.hxx *.h *.cxx *.cpp
+FILE_PATTERNS          = *.hxx *.h *.cxx *.cpp *.md
 RECURSIVE              = NO
 EXCLUDE                = @CMAKE_BINARY_DIR@
+USE_MDFILE_AS_MAINPAGE = "@CMAKE_SOURCE_DIR@/README.md"
 
 # Extract settings
 EXTRACT_ALL            = YES
@@ -31,10 +33,11 @@ GENERATE_LATEX         = NO
 
 # Misc
 INPUT_ENCODING         = UTF-8
+MARKDOWN_SUPPORT       = YES
 STRIP_FROM_PATH        = @CMAKE_SOURCE_DIR@
 
 # Treat header-only files as C++
-EXTENSION_MAPPING      = hxx=C++
+EXTENSION_MAPPING      = hxx=C++ md=Markdown
 
 # Do not show unknown tags as errors
 WARN_IF_DOC_ERROR      = NO
