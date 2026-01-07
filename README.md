@@ -102,7 +102,7 @@ cmake --build build --target docs
 Include the main header and construct a `BufferView` over your packet data:
 
 ```cpp
-#include "buffer_view.hxx"
+#include "vbvx/buffer_view.hxx"
 
 vbvx::BufferView buf(data, len);
 if (auto ip = buf.ipv4_header()) {
@@ -123,12 +123,12 @@ Notes:
 
 ## SRv6
 
-- SRv6 header definitions live in `types/srv6_header.hxx`.
+- SRv6 header definitions live in `vbvx/srv6_header.hxx`.
 - Tests: `tests/test_srv6_header.cxx`, `tests/test_srv6_tlv.cxx`.
 - Example - obtain an SRv6 header and inspect segments/TLVs:
 
 ```cpp
-#include "buffer_view.hxx"
+#include "vbvx/buffer_view.hxx"
 
 vbvx::BufferView buf(packet_data, packet_len);
 if (auto srh = buf.srv6_header()) {
@@ -165,6 +165,8 @@ Use this when you’ve got a bitmask enum (usually a field inside a header struc
 Example:
 
 ```cpp
+#include "vbvx/flags_view.hxx"
+
 enum class FooFlags : uint8_t {
   None = 0,
   A = 1 << 0,
@@ -193,4 +195,4 @@ Notes: No allocation, no indirection: it just operates on the underlying enum va
 
 ## License & Acknowledgements
 
-This project is licensed under MIT license. Full the terms are in the `LICENSE` file.
+This project is licensed under MIT license. Full terms are in the `LICENSE` file.

@@ -2,8 +2,8 @@
 #include "header_view.hxx"
 #include "auto_swap.hxx"
 
-#include "types/ether.hxx"
-#include "types/arp.hxx"
+#include "vbvx/ether.hxx"
+#include "vbvx/arp.hxx"
 
 #include <array>
 #include <bit>

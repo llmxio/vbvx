@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "header_view.hxx"
 #include "auto_swap.hxx"
-#include "types/ip4_header.hxx"
+#include "vbvx/ip4_header.hxx"
 
 #include <array>
 #include <bit>
@@ -245,9 +245,9 @@ TEST(IPv4HeaderEdgeCases, FragFlagsMaskingAndPreserveOffset) {
 // ---------------------------------------------------------------------
 
 #include "buffer_view.hxx"
-#include "types/ether.hxx"
-#include "types/udp_header.hxx"
-#include "types/tcp_header.hxx"
+#include "vbvx/ether.hxx"
+#include "vbvx/udp_header.hxx"
+#include "vbvx/tcp_header.hxx"
 
 #include <vector>
 

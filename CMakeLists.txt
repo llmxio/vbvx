@@ -10,7 +10,7 @@ add_library(vbvx::vbvx ALIAS vbvx)
 
 target_include_directories(vbvx INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/types>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vbvx>
   $<INSTALL_INTERFACE:include/vbvx>
 )
 
@@ -21,9 +21,7 @@ target_compile_features(vbvx INTERFACE cxx_std_23)
 # - public headers are in the project root (e.g., buffer_view.hxx) and in types/
 file(GLOB VBVX_PUBLIC_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx"
-  "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/types/*.hxx"
-  "${CMAKE_CURRENT_SOURCE_DIR}/types/*.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/vbvx/*.hxx"
 )
 install(FILES ${VBVX_PUBLIC_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vbvx)
 

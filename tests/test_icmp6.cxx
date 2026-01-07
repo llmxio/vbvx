@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "types/icmp6.hxx"
+#include "vbvx/icmp6.hxx"
 
 using namespace vbvx;
 using enum ICMPv6Type;

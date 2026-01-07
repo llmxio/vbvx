@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "header_view.hxx"
-#include "types/icmp4.hxx"
+#include "vbvx/icmp4.hxx"
 
 using namespace vbvx;
 using enum ICMPv4Type;

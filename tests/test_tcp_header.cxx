@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include "buffer_view.hxx"
 #include "auto_swap.hxx"
-#include "types/ether.hxx"
-#include "types/ip4_header.hxx"
-#include "types/tcp_header.hxx"
+#include "vbvx/ether.hxx"
+#include "vbvx/ip4_header.hxx"
+#include "vbvx/tcp_header.hxx"
 
 #include <bit>
 #include <vector>
