@@ -191,8 +191,6 @@ auto current = cfv.value();
 
 Notes: No allocation, no indirection: it just operates on the underlying enum value you pass in.
 
----
-
 ## License & Acknowledgements
 
 This project is licensed under MIT license. Full the terms are in the `LICENSE` file.
