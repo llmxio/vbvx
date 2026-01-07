@@ -4,7 +4,7 @@
 #include <cstring>
 
 #include "header_view.hxx"
-#include "types/srv6_header.hxx"
+#include "vbvx/srv6_header.hxx"
 
 using namespace vbvx;
 

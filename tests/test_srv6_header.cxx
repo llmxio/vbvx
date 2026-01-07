@@ -2,7 +2,7 @@
 #include <array>
 #include <cstring>
 
-#include "types/srv6_header.hxx"
+#include "vbvx/srv6_header.hxx"
 #include "header_view.hxx"
 
 using namespace vbvx;

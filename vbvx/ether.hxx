@@ -98,8 +98,8 @@ struct [[gnu::packed]] VlanTci {
 
 /** @brief VLAN (802.1Q) header (4 bytes after Ethernet header).
  *  IANA (EtherType 802.1Q / 0x8100):
- * https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml IEEE
- * 802.1Q: https://standards.ieee.org/standard/802_1Q-2018.html
+ * https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+ * IEEE 802.1Q: https://standards.ieee.org/standard/802_1Q-2018.html
  */
 struct [[gnu::packed]] VlanHeader {
   uint16_t tci_be;

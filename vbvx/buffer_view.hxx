@@ -14,7 +14,7 @@
 #include "ip_protocol.hxx"
 #include "ip4_header.hxx"
 #include "ip6_header.hxx"
-#include "types/srv6_header.hxx"
+#include "srv6_header.hxx"
 #include "tcp_header.hxx"
 #include "udp_header.hxx"
 

@@ -3,11 +3,11 @@
 #include "header_view.hxx"
 #include "auto_swap.hxx"
 #include "buffer_view.hxx"
-#include "types/ether.hxx"
-#include "types/ip_protocol.hxx"
-#include "types/ip6_header.hxx"
-#include "types/udp_header.hxx"
-#include "types/tcp_header.hxx"
+#include "vbvx/ether.hxx"
+#include "vbvx/ip_protocol.hxx"
+#include "vbvx/ip6_header.hxx"
+#include "vbvx/udp_header.hxx"
+#include "vbvx/tcp_header.hxx"
 
 #include <array>
 #include <bit>
