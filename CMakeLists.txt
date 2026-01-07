@@ -85,11 +85,22 @@ if(BUILD_DOCS)
   set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 
+  find_package(Python3 COMPONENTS Interpreter QUIET)
+
   add_custom_target(docs
     COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM)
+
+  if(Python3_Interpreter_FOUND)
+    add_custom_command(TARGET docs POST_BUILD
+      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/docs/fix_doxygen_html.py ${CMAKE_CURRENT_BINARY_DIR}/docs/html
+      COMMENT "Post-processing Doxygen HTML: converting <span class=\"tt\"> to <code> tags"
+      VERBATIM)
+  else()
+    message(WARNING "Python3 not found: skipping Doxygen HTML post-processing (fixing <tt> tags).")
+  endif()
 
   # Optional: install generated HTML
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs/html
