@@ -3,14 +3,14 @@
 
 PROJECT_NAME           = "@PROJECT_NAME@"
 PROJECT_NUMBER         = "@PROJECT_VERSION@"
-PROJECT_BRIEF          = "Header-only C++23 library for safe, zero-copy parsing of packet buffers. <a href=\"https://llmxio.github.io/vbvx/annotated.html\" target=\"_blank\">Annotated API Docs</a>"
+PROJECT_BRIEF          = "Header-only C++23 library for safe, zero-copy parsing of packet buffers."
 OUTPUT_DIRECTORY       = "@CMAKE_BINARY_DIR@/docs"
 CREATE_SUBDIRS         = YES
 OUTPUT_LANGUAGE        = English
 # Input files and patterns
 INPUT                  = "@CMAKE_SOURCE_DIR@"
 FILE_PATTERNS          = *.hxx *.h *.cxx *.cpp *.md
-RECURSIVE              = NO
+RECURSIVE              = YES
 EXCLUDE                = @CMAKE_BINARY_DIR@
 USE_MDFILE_AS_MAINPAGE = "@CMAKE_SOURCE_DIR@/README.md"
 
