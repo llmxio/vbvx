@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+# Adjust this path if you change the install layout
+include("${CMAKE_CURRENT_LIST_DIR}/VBVXTargets.cmake")
+
+# Provide an alias for older CMake versions that don't preserve namespacing
+if(NOT TARGET vbvx::vbvx AND TARGET vbvx)
+  add_library(vbvx::vbvx ALIAS vbvx)
+endif()

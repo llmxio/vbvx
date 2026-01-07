@@ -1,0 +1,65 @@
+# Build directories
+build/
+bin/
+out/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+install_manifest.txt
+
+# Object files and libraries
+*.o
+*.obj
+*.so
+*.a
+*.dylib
+*.dll
+*.exe
+
+# Coverage/profiler
+*.gcda
+*.gcno
+coverage/
+*.prof
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# IDEs/editors
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+*.swp
+*~
+*.tmp
+
+# Logs and temporary files
+logs/
+*.log
+*.bak
+
+# Misc
+.DS_Store
+Thumbs.db
+.env
+.env.local
+
+# Node (if added later)
+node_modules/
+
+dist/
+
+# Generated files
+*.coverage
+
+# Project-specific ignores below this line
+.github/**/*.md
+Testing
