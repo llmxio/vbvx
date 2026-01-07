@@ -18,12 +18,17 @@ target_include_directories(vbvx INTERFACE
 target_compile_features(vbvx INTERFACE cxx_std_23)
 
 # Install headers
-# - public headers are in the project root (e.g., buffer_view.hxx) and in types/
-file(GLOB VBVX_PUBLIC_HDRS
+# - install the `vbvx/` directory to preserve layout (and any future subdirs)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vbvx"
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Also install any top-level public headers if present
+file(GLOB VBVX_PUBLIC_HDRS_TOP
   "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx"
-  "${CMAKE_CURRENT_SOURCE_DIR}/vbvx/*.hxx"
 )
-install(FILES ${VBVX_PUBLIC_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vbvx)
+if(VBVX_PUBLIC_HDRS_TOP)
+  install(FILES ${VBVX_PUBLIC_HDRS_TOP} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vbvx)
+endif()
 
 # install the license for packagers/users
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_DOCDIR})

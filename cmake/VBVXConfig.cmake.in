@@ -3,6 +3,16 @@
 # Adjust this path if you change the install layout
 include("${CMAKE_CURRENT_LIST_DIR}/VBVXTargets.cmake")
 
+# Provide an exported variable pointing at installed headers for consumers
+# This helps users who prefer to do "include_directories(${VBVX_INCLUDE_DIR})"
+# and also makes it easier to debug missing-include problems.
+get_filename_component(_VBVX_config_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
+# two levels up from lib/cmake/VBVX -> installation prefix
+get_filename_component(_VBVX_prefix_dir "${_VBVX_config_dir}" PATH)
+get_filename_component(_VBVX_prefix_dir "${_VBVX_prefix_dir}" PATH)
+set(VBVX_INCLUDE_DIR "${_VBVX_prefix_dir}/${CMAKE_INSTALL_INCLUDEDIR}/vbvx")
+set(VBVX_INCLUDE_DIRS "${VBVX_INCLUDE_DIR}")
+
 # Provide an alias for older CMake versions that don't preserve namespacing
 if(NOT TARGET vbvx::vbvx AND TARGET vbvx)
   add_library(vbvx::vbvx ALIAS vbvx)
