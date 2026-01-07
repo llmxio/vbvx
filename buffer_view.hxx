@@ -20,6 +20,10 @@
 
 namespace vbvx {
 
+/**
+ * @brief A view over a packet buffer providing access to various protocol
+ * headers.
+ */
 class BufferView {
   using buffer_t = uint8_t;
 

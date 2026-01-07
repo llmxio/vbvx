@@ -6,6 +6,21 @@
 
 namespace vbvx {
 
+/**
+ * @brief Enable bitwise operators for an enum class.
+ *
+ * Specialize this template for your enum to enable the bitwise operators.
+ *
+ * Example:
+ *   enum class MyFlags : uint8_t {
+ *     FlagA = 0x01,
+ *     FlagB = 0x02,
+ *     FlagC = 0x04
+ *   };
+ *
+ *   template <>
+ *   struct enable_bitmask_operators<MyFlags> : std::true_type {};
+ */
 template <typename T> struct enable_bitmask_operators : std::false_type {};
 
 template <typename T>
@@ -147,7 +162,7 @@ public:
     return (flags_ref_ & mask) == mask;
   }
 
-  constexpr auto value() const->BitmaskEnum { return flags_ref_; }
+  constexpr auto value() const -> BitmaskEnum { return flags_ref_; }
   constexpr operator BitmaskEnum() const { return flags_ref_; }
 
 private:
