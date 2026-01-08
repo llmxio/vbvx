@@ -100,7 +100,7 @@ TEST(UDPHeader, BufferViewIntegration) {
   uh->set_dst_port(4321);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   ASSERT_TRUE(buf.ip_protocol().has_value());
   EXPECT_EQ(buf.ip_protocol().value(), IpProtocol::UDP);
 

@@ -8,11 +8,13 @@
 
 namespace vbvx {
 
-/** @brief Ethernet frame EtherType values (network byte order).
- *  IANA registry (EtherType / Ethernet Numbers):
- * https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
- *  Related IETF RFC: RFC894 (Ethernet encapsulation of IP datagrams)
- * https://datatracker.ietf.org/doc/html/rfc894
+/**
+ * @brief Ethernet frame EtherType values (network byte order).
+ *
+ * @see IANA registry (EtherType / Ethernet Numbers):
+ *   https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+ * @see RFC894 (Ethernet encapsulation of IP datagrams):
+ *   https://datatracker.ietf.org/doc/html/rfc894
  */
 enum class EtherType : uint16_t {
   IPv4 = 0x0800,
@@ -48,10 +50,13 @@ struct [[gnu::packed]] EtherHeader {
 static_assert(sizeof(EtherHeader) == 14, "Wrong Ethernet header size");
 static_assert(alignof(EtherHeader) == 1, "Wrong Ethernet header alignment");
 
-/** @brief VLAN Priority Code Point (PCP) values (3 bits). See IEEE 802.1Q and
- * IANA Ethernet numbers. IANA:
- * https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml IEEE
- * 802.1Q: https://standards.ieee.org/standard/802_1Q-2018.html
+/**
+ * @brief VLAN Priority Code Point (PCP) values (3 bits).
+ *
+ * @see IEEE 802.1Q and IANA Ethernet numbers. IANA:
+ *   https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+ * @see IEEE 802.1Q:
+ *   https://standards.ieee.org/standard/802_1Q-2018.html
  */
 enum class VlanPcp : uint8_t {
   p0 = 0,
@@ -64,11 +69,13 @@ enum class VlanPcp : uint8_t {
   p7 = 7
 };
 
-/** @brief VLAN Tag Control Information (TCI) helpers and layout.
- *  See IEEE 802.1Q for 802.1Q VLAN tag format and IANA Ethernet numbers
- * (EtherType 0x8100). IEEE 802.1Q:
- * https://standards.ieee.org/standard/802_1Q-2018.html IANA:
- * https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+/**
+ * @brief VLAN Tag Control Information (TCI) helpers and layout.
+ *
+ * @see IANA (EtherType 802.1Q / 0x8100):
+ *   https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+ * @see (EtherType 0x8100). IEEE 802.1Q:
+ *   https://standards.ieee.org/standard/802_1Q-2018.html
  */
 struct [[gnu::packed]] VlanTci {
   uint16_t raw{};
@@ -96,10 +103,13 @@ struct [[gnu::packed]] VlanTci {
   }
 };
 
-/** @brief VLAN (802.1Q) header (4 bytes after Ethernet header).
- *  IANA (EtherType 802.1Q / 0x8100):
- * https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
- * IEEE 802.1Q: https://standards.ieee.org/standard/802_1Q-2018.html
+/**
+ * @brief VLAN (802.1Q) header (4 bytes after Ethernet header).
+ *
+ * @see IANA (EtherType 802.1Q / 0x8100):
+ *   https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+ * @see IEEE 802.1Q for 802.1Q VLAN tag format:
+ *   https://standards.ieee.org/standard/802_1Q-2018.html
  */
 struct [[gnu::packed]] VlanHeader {
   uint16_t tci_be;

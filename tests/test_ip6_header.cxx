@@ -211,7 +211,7 @@ TEST(BufferViewIPv6MalformedTest, Ipv6HeaderTooShort) {
   eth->type_be = autoswap(std::to_underlying(EtherType::IPv6));
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  EXPECT_FALSE(buf.ipv6_header());
+  EXPECT_FALSE(buf.ip6_header());
   EXPECT_FALSE(buf.l4_offset());
   EXPECT_FALSE(buf.ip_protocol().has_value());
 }
@@ -230,7 +230,7 @@ TEST(BufferViewIPv6MalformedTest, Ipv6HeaderPresentAndL4Offset) {
   ip->payload_length_be = autoswap(static_cast<uint16_t>(sizeof(UDPHeader)));
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv6_header());
+  ASSERT_TRUE(buf.ip6_header());
   ASSERT_TRUE(buf.ip_protocol().has_value());
   EXPECT_EQ(buf.ip_protocol().value(), IpProtocol::UDP);
   ASSERT_TRUE(buf.l4_offset());
@@ -276,7 +276,7 @@ TEST(BufferViewIPv6MalformedTest, VlanIpv6Offset) {
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
   EXPECT_EQ(buf.l3_offset(),
             static_cast<uint16_t>(sizeof(EtherHeader) + sizeof(VlanHeader)));
-  EXPECT_TRUE(buf.ipv6_header());
+  EXPECT_TRUE(buf.ip6_header());
 }
 
 TEST(BufferViewIPv6MalformedTest, IpProtocolNullOnNonIpFrames) {
@@ -285,8 +285,8 @@ TEST(BufferViewIPv6MalformedTest, IpProtocolNullOnNonIpFrames) {
   eth->type_be = autoswap(std::to_underlying(EtherType::ARP));
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  EXPECT_FALSE(buf.ipv4_header());
-  EXPECT_FALSE(buf.ipv6_header());
+  EXPECT_FALSE(buf.ip4_header());
+  EXPECT_FALSE(buf.ip6_header());
   EXPECT_FALSE(buf.ip_protocol().has_value());
 }
 
@@ -310,7 +310,7 @@ TEST(BufferViewIPv6MalformedTest, TcpOptionsTruncated) {
   tcp->data_offset = static_cast<uint8_t>((10u << 4) & 0xF0u);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv6_header());
+  ASSERT_TRUE(buf.ip6_header());
   auto th = buf.tcp_header();
   ASSERT_TRUE(th);
   EXPECT_EQ(th->header_words(), 10u);
@@ -344,7 +344,7 @@ TEST(BufferViewIPv6MalformedTest, TcpDataOffsetTooSmall) {
   tcp->data_offset = static_cast<uint8_t>((4u << 4) & 0xF0u);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv6_header());
+  ASSERT_TRUE(buf.ip6_header());
   auto th = buf.tcp_header();
   // header_at requires at least 20 bytes so HeaderView exists, but data_offset
   // indicates invalid header size
@@ -371,7 +371,7 @@ TEST(BufferViewIPv6MalformedTest, UdpLengthTooSmallAndTooLarge) {
     uh->length_be = autoswap(static_cast<uint16_t>(4u)); // less than 8
 
     BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-    ASSERT_TRUE(buf.ipv6_header());
+    ASSERT_TRUE(buf.ip6_header());
     auto u = buf.udp_header();
     ASSERT_TRUE(u);
     EXPECT_LT(u->length(), static_cast<uint16_t>(sizeof(UDPHeader)));
@@ -397,10 +397,10 @@ TEST(BufferViewIPv6MalformedTest, UdpLengthTooSmallAndTooLarge) {
         static_cast<uint16_t>(sizeof(UDPHeader) + 10u)); // larger than payload
 
     BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-    ASSERT_TRUE(buf.ipv6_header());
+    ASSERT_TRUE(buf.ip6_header());
     auto u = buf.udp_header();
     ASSERT_TRUE(u);
     // UDP length > IPv6 payload length
-    EXPECT_GT(u->length(), buf.ipv6_header()->payload_length());
+    EXPECT_GT(u->length(), buf.ip6_header()->payload_length());
   }
 }

@@ -101,7 +101,7 @@ template <typename BitmaskEnum>
   requires std::is_enum_v<BitmaskEnum>
 class FlagsView {
 public:
-  explicit FlagsView(BitmaskEnum& flags) : flags_ref_(flags) {}
+  constexpr explicit FlagsView(BitmaskEnum& flags) : flags_ref_(flags) {}
 
   constexpr auto set(BitmaskEnum mask) -> FlagsView& {
     flags_ref_ |= mask;
@@ -151,7 +151,8 @@ template <typename BitmaskEnum>
   requires std::is_enum_v<BitmaskEnum>
 class ConstFlagsView {
 public:
-  explicit ConstFlagsView(const BitmaskEnum& flags) : flags_ref_(flags) {}
+  constexpr explicit ConstFlagsView(const BitmaskEnum& flags)
+      : flags_ref_(flags) {}
 
   constexpr bool has(BitmaskEnum mask) const {
     return (flags_ref_ & mask) != static_cast<BitmaskEnum>(0);

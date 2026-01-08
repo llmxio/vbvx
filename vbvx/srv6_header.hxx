@@ -91,10 +91,10 @@ struct SRv6Tlv {
 /** @brief Iterator over TLVs in an SRH's TLV area. Does not allocate. */
 class SRv6TlvIterator {
 public:
-  SRv6TlvIterator(const uint8_t* ptr, size_t len) noexcept
+  constexpr SRv6TlvIterator(const uint8_t* ptr, size_t len) noexcept
       : ptr_{ptr}, len_{len}, pos_{0} {}
 
-  bool next(SRv6Tlv& out) noexcept {
+  constexpr bool next(SRv6Tlv& out) noexcept {
     if (pos_ >= len_) {
       return false;
     }
@@ -127,7 +127,8 @@ private:
   size_t pos_;
 };
 
-/** @brief HMAC TLV view for type==5 (HMAC). The 'value' pointer is the TLV
+/**
+ * @brief HMAC TLV view for type==5 (HMAC). The 'value' pointer is the TLV
  * variable data where the first two bytes are D/reserved, followed by a 4-octet
  * HMAC Key ID, then the HMAC bytes.
  */
