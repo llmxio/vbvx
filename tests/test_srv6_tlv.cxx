@@ -136,3 +136,285 @@ TEST(Srv6TlvTest, TruncatedTlvHandled) {
   // iterator should detect truncation and return false
   EXPECT_FALSE(it.next(t));
 }
+
+TEST(Srv6TlvTest, PadNZeroLength) {
+  // PadN with length 0 should be parsed (length==0, total_len==2). Any
+  // trailing zero bytes from 8-octet rounding are Pad1 TLVs and should be
+  // returned as type 0, total_len==1.
+  const size_t tlv_bytes_needed = 2; // PadN (type + length)
+  const size_t min_total = 8 + 16 + tlv_bytes_needed;
+  const size_t hdr_units = (min_total + 7) / 8;
+  const size_t total_size = hdr_units * 8;
+
+  std::vector<uint8_t> data(total_size, 0u);
+  SRv6Header hdr{};
+  hdr.hdr_ext_len = static_cast<uint8_t>((total_size / 8) - 1);
+  hdr.routing_type = 4;
+  hdr.last_entry = 0;
+  std::memcpy(data.data(), &hdr, sizeof(hdr));
+  for (size_t i = 0; i < 16; ++i) {
+    data[8 + i] = static_cast<uint8_t>(0x10 + i);
+  }
+
+  size_t tlv_pos = 8 + 16;
+  data[tlv_pos++] = 0x04; // PadN
+  data[tlv_pos++] = 0x00; // length = 0
+
+  HeaderView<SRv6Header> hv(data.data());
+  ASSERT_TRUE(hv);
+  SRv6TlvIterator it(hv->tlv_first_ptr(), hv->tlv_bytes_len());
+  SRv6Tlv t;
+
+  ASSERT_TRUE(it.next(t));
+  EXPECT_EQ(t.type, 4u);
+  EXPECT_EQ(t.length, 0u);
+  EXPECT_EQ(t.total_len, 2u);
+
+  // Any remaining bytes should parse as Pad1 TLVs (type 0)
+  while (it.next(t)) {
+    EXPECT_EQ(t.type, 0u);
+    EXPECT_EQ(t.total_len, 1u);
+  }
+}
+
+TEST(Srv6TlvTest, HmacMinAndInvalidLengths) {
+  // HMAC TLV with length == 6 is the minimal valid (2 + 4 + 0) and should
+  // be accepted by SRv6HmacTlvView. A TLV with length == 5 is too short and
+  // the view should report invalid.
+
+  // Valid minimal HMAC (length=6)
+  {
+    const size_t tlv_bytes_needed = 2 + 6;
+    const size_t min_total = 8 + 16 + tlv_bytes_needed;
+    const size_t hdr_units = (min_total + 7) / 8;
+    const size_t total_size = hdr_units * 8;
+
+    std::vector<uint8_t> data(total_size, 0u);
+    SRv6Header hdr{};
+    hdr.hdr_ext_len = static_cast<uint8_t>((total_size / 8) - 1);
+    hdr.routing_type = 4;
+    hdr.last_entry = 0;
+    std::memcpy(data.data(), &hdr, sizeof(hdr));
+    size_t tlv_pos = 8 + 16;
+
+    data[tlv_pos++] = 0x05; // HMAC
+    data[tlv_pos++] = 6;    // length
+    uint16_t d_res = autoswap(static_cast<uint16_t>(0x0000u));
+    std::memcpy(&data[tlv_pos], &d_res, 2);
+    tlv_pos += 2;
+    uint32_t kid = autoswap(static_cast<uint32_t>(0xAABBCCDDu));
+    std::memcpy(&data[tlv_pos], &kid, 4);
+    tlv_pos += 4;
+
+    HeaderView<SRv6Header> hv(data.data());
+    ASSERT_TRUE(hv);
+    SRv6TlvIterator it(hv->tlv_first_ptr(), hv->tlv_bytes_len());
+    SRv6Tlv t;
+    ASSERT_TRUE(it.next(t));
+    EXPECT_EQ(t.type, 5u);
+    EXPECT_EQ(t.length, 6u);
+
+    SRv6HmacTlvView hvw{t.value, t.length};
+    EXPECT_TRUE(hvw.valid());
+    EXPECT_FALSE(hvw.d_bit());
+    EXPECT_EQ(hvw.key_id(), 0xAABBCCDDu);
+    auto h = hvw.hmac();
+    EXPECT_EQ(h.size(), 0u);
+  }
+
+  // Invalid HMAC (length=5) -> view reports invalid
+  {
+    const size_t tlv_bytes_needed = 2 + 5;
+    const size_t min_total = 8 + 16 + tlv_bytes_needed;
+    const size_t hdr_units = (min_total + 7) / 8;
+    const size_t total_size = hdr_units * 8;
+
+    std::vector<uint8_t> data(total_size, 0u);
+    SRv6Header hdr{};
+    hdr.hdr_ext_len = static_cast<uint8_t>((total_size / 8) - 1);
+    hdr.routing_type = 4;
+    hdr.last_entry = 0;
+    std::memcpy(data.data(), &hdr, sizeof(hdr));
+    size_t tlv_pos = 8 + 16;
+
+    data[tlv_pos++] = 0x05; // HMAC
+    data[tlv_pos++] = 5;    // length (too short)
+    // provide 5 bytes of content (2 byte D/res + 3 partial bytes)
+    data[tlv_pos++] = 0x00;
+    data[tlv_pos++] = 0x00;
+    data[tlv_pos++] = 0xAA;
+    data[tlv_pos++] = 0xBB;
+    data[tlv_pos++] = 0xCC;
+
+    HeaderView<SRv6Header> hv(data.data());
+    ASSERT_TRUE(hv);
+    SRv6TlvIterator it(hv->tlv_first_ptr(), hv->tlv_bytes_len());
+    SRv6Tlv t;
+    ASSERT_TRUE(it.next(t));
+    EXPECT_EQ(t.type, 5u);
+    EXPECT_EQ(t.length, 5u);
+
+    SRv6HmacTlvView hvw{t.value, t.length};
+    EXPECT_FALSE(hvw.valid());
+  }
+}
+
+TEST(Srv6TlvTest, UnknownTlvAndIncompleteHeader) {
+  // Unknown TLV type should be returned as-is. If the buffer ends with a
+  // single trailing byte (type only), iterator should detect the truncated
+  // header and return false on the next() call.
+  const size_t tlv_bytes_needed =
+      2 + 2 + 1; // unknown TLV (type+len+2) + 1 byte
+
+  const size_t min_total = 8 + 16 + tlv_bytes_needed;
+  const size_t hdr_units = (min_total + 7) / 8;
+  const size_t total_size = hdr_units * 8;
+
+  std::vector<uint8_t> data(total_size, 0u);
+  SRv6Header hdr{};
+  hdr.hdr_ext_len = static_cast<uint8_t>((total_size / 8) - 1);
+  hdr.routing_type = 4;
+  hdr.last_entry = 0;
+  std::memcpy(data.data(), &hdr, sizeof(hdr));
+  size_t tlv_pos = 8 + 16;
+
+  data[tlv_pos++] = 0xFF; // unknown type
+  data[tlv_pos++] = 2;    // length
+  data[tlv_pos++] = 0x11;
+  data[tlv_pos++] = 0x22;
+
+  // trailing single byte (incomplete TLV header)
+  data[tlv_pos++] = 0x04;
+
+  HeaderView<SRv6Header> hv(data.data());
+  ASSERT_TRUE(hv);
+  SRv6TlvIterator it(hv->tlv_first_ptr(), hv->tlv_bytes_len());
+  SRv6Tlv t;
+
+  ASSERT_TRUE(it.next(t));
+  EXPECT_EQ(t.type, 0xFFu);
+  EXPECT_EQ(t.length, 2u);
+  EXPECT_EQ(t.total_len, 4u);
+
+  // Due to 8-octet rounding, the trailing byte is followed by a zero; this
+  // parses as PadN with length==0 rather than a truncated header.
+  ASSERT_TRUE(it.next(t));
+  EXPECT_EQ(t.type, 4u);
+  EXPECT_EQ(t.length, 0u);
+}
+
+TEST(Srv6TlvTest, MultipleHmacTlvs) {
+  // Two HMAC TLVs back-to-back: first minimal (len=6), second with 8-byte HMAC
+  const size_t tlv_bytes_needed = (2 + 6) + (2 + 14);
+  const size_t min_total = 8 + 16 + tlv_bytes_needed;
+  const size_t hdr_units = (min_total + 7) / 8;
+  const size_t total_size = hdr_units * 8;
+
+  std::vector<uint8_t> data(total_size, 0u);
+  SRv6Header hdr{};
+  hdr.hdr_ext_len = static_cast<uint8_t>((total_size / 8) - 1);
+  hdr.routing_type = 4;
+  hdr.last_entry = 0;
+  std::memcpy(data.data(), &hdr, sizeof(hdr));
+  size_t tlv_pos = 8 + 16;
+
+  // First HMAC TLV (minimal)
+  data[tlv_pos++] = 0x05;
+  data[tlv_pos++] = 6;
+  uint16_t d_res0 = autoswap(static_cast<uint16_t>(0x0000u));
+  std::memcpy(&data[tlv_pos], &d_res0, 2);
+  tlv_pos += 2;
+  uint32_t kid0 = autoswap(static_cast<uint32_t>(0xA1A2A3A4u));
+  std::memcpy(&data[tlv_pos], &kid0, 4);
+  tlv_pos += 4;
+
+  // Second HMAC TLV (with D bit and 8-byte HMAC)
+  data[tlv_pos++] = 0x05;
+  data[tlv_pos++] = 14;
+  uint16_t d_res1 = autoswap(static_cast<uint16_t>(0x8000u));
+  std::memcpy(&data[tlv_pos], &d_res1, 2);
+  tlv_pos += 2;
+  uint32_t kid1 = autoswap(static_cast<uint32_t>(0x01020304u));
+  std::memcpy(&data[tlv_pos], &kid1, 4);
+  tlv_pos += 4;
+  for (uint8_t i = 0; i < 8; ++i) {
+    data[tlv_pos++] = static_cast<uint8_t>(0xF0 + i);
+  }
+
+  HeaderView<SRv6Header> hv(data.data());
+  ASSERT_TRUE(hv);
+  SRv6TlvIterator it(hv->tlv_first_ptr(), hv->tlv_bytes_len());
+  SRv6Tlv t;
+
+  // First TLV
+  ASSERT_TRUE(it.next(t));
+  EXPECT_EQ(t.type, 5u);
+  EXPECT_EQ(t.length, 6u);
+  SRv6HmacTlvView h0{t.value, t.length};
+  EXPECT_TRUE(h0.valid());
+  EXPECT_FALSE(h0.d_bit());
+  EXPECT_EQ(h0.key_id(), 0xA1A2A3A4u);
+  EXPECT_EQ(h0.hmac().size(), 0u);
+
+  // Second TLV
+  ASSERT_TRUE(it.next(t));
+  EXPECT_EQ(t.type, 5u);
+  EXPECT_EQ(t.length, 14u);
+  SRv6HmacTlvView h1{t.value, t.length};
+  EXPECT_TRUE(h1.valid());
+  EXPECT_TRUE(h1.d_bit());
+  EXPECT_EQ(h1.key_id(), 0x01020304u);
+  auto h = h1.hmac();
+  ASSERT_EQ(h.size(), 8u);
+  for (size_t i = 0; i < h.size(); ++i) {
+    EXPECT_EQ(h[i], static_cast<uint8_t>(0xF0 + i));
+  }
+
+  // Any padding bytes should be Pad1 or PadN as handled elsewhere
+  while (it.next(t)) {
+    EXPECT_TRUE(t.type == 0u || t.type == 4u);
+  }
+}
+
+TEST(Srv6TlvTest, MalformedChainedTlv) {
+  // First TLV valid, second TLV declares a length much larger than remaining
+  // bytes — iterator should parse the first TLV and then return false when
+  // encountering the malformed second TLV.
+  const size_t tlv_bytes_needed =
+      3 + 2 + 1; // first (3 bytes), second header (2) + 1 byte content
+  const size_t min_total = 8 + 16 + tlv_bytes_needed;
+  const size_t hdr_units = (min_total + 7) / 8;
+  const size_t total_size = hdr_units * 8;
+
+  std::vector<uint8_t> data(total_size, 0u);
+  SRv6Header hdr{};
+  hdr.hdr_ext_len = static_cast<uint8_t>((total_size / 8) - 1);
+  hdr.routing_type = 4;
+  hdr.last_entry = 0;
+  std::memcpy(data.data(), &hdr, sizeof(hdr));
+  size_t tlv_pos = 8 + 16;
+
+  // First TLV: unknown type 0x11, length=1, value=0xAA
+  data[tlv_pos++] = 0x11;
+  data[tlv_pos++] = 1;
+  data[tlv_pos++] = 0xAA;
+
+  // Second TLV: unknown type 0x12, length=100 -> truncated by buffer
+  data[tlv_pos++] = 0x12;
+  data[tlv_pos++] = 100;
+  data[tlv_pos++] = 0x55; // one byte of content only
+
+  HeaderView<SRv6Header> hv(data.data());
+  ASSERT_TRUE(hv);
+  SRv6TlvIterator it(hv->tlv_first_ptr(), hv->tlv_bytes_len());
+  SRv6Tlv t;
+
+  // First TLV should be returned
+  ASSERT_TRUE(it.next(t));
+  EXPECT_EQ(t.type, 0x11u);
+  EXPECT_EQ(t.length, 1u);
+  EXPECT_EQ(t.total_len, 3u);
+
+  // Second TLV is malformed/truncated; iterator should return false
+  EXPECT_FALSE(it.next(t));
+}
