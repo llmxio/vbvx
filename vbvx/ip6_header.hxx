@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "auto_swap.hxx"
+#include "utils.hxx"
 #include "ip_protocol.hxx"
 
 namespace vbvx {

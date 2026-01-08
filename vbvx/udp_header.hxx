@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "auto_swap.hxx"
+#include "utils.hxx"
 
 namespace vbvx {
 

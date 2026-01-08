@@ -11,6 +11,7 @@
 #include "arp.hxx"
 #include "ether.hxx"
 #include "icmp4.hxx"
+#include "icmp6.hxx"
 #include "ip_protocol.hxx"
 #include "ip4_header.hxx"
 #include "ip6_header.hxx"
@@ -31,6 +32,7 @@ public:
   constexpr BufferView(const void* data, uint16_t length) noexcept
       : data_{static_cast<const buffer_t*>(data)}, length_{length} {}
 
+  /** @brief Get the underlying buffer data as a span. */
   constexpr auto data() const noexcept -> std::span<const buffer_t> {
     if (!data_) {
       return {};
@@ -38,12 +40,15 @@ public:
     return {data_, length_};
   }
 
+  /** @brief Get the length of the buffer. */
   constexpr auto length() const noexcept -> uint16_t { return length_; }
 
+  /** @brief Get Ethernet header view. */
   constexpr auto ether_header() const noexcept -> HeaderView<EtherHeader> {
     return header_at<EtherHeader>(0);
   }
 
+  /** @brief Get the EtherType of the packet for possible VLAN tag. */
   constexpr auto ether_type() const noexcept -> std::optional<EtherType> {
     auto eth = ether_header();
     if (!eth) {
@@ -62,6 +67,7 @@ public:
     return static_cast<EtherType>(type);
   }
 
+  /** @brief Get VLAN header view. */
   constexpr auto vlan_header() const noexcept -> HeaderView<VlanHeader> {
     auto eth = ether_header();
     if (!eth) {
@@ -76,6 +82,7 @@ public:
     return header_at<VlanHeader>(sizeof(EtherHeader));
   }
 
+  /** @brief Get VLAN ID if VLAN tag is present. */
   constexpr auto vlan_id() const noexcept -> std::optional<uint16_t> {
     auto vlan = vlan_header();
     if (!vlan) {
@@ -84,6 +91,7 @@ public:
     return static_cast<uint16_t>(vlan->tci() & 0x0FFFu);
   }
 
+  /** @brief Get the offset of the Layer 3 header. */
   constexpr auto l3_offset() const noexcept -> uint16_t {
     auto eth = ether_header();
     if (!eth) {
@@ -95,6 +103,7 @@ public:
                : static_cast<uint16_t>(sizeof(EtherHeader));
   }
 
+  /** @brief Get ARP header view. */
   constexpr auto arp_header() const noexcept -> HeaderView<ArpHeader> {
     auto et = ether_type();
     if (!et || *et != EtherType::ARP) {
@@ -103,6 +112,7 @@ public:
     return header_at<ArpHeader>(l3_offset());
   }
 
+  /** @brief Get IPv4 header view. */
   constexpr auto ip4_header() const noexcept -> HeaderView<IPv4Header> {
     auto et = ether_type();
     if (!et || *et != EtherType::IPv4) {
@@ -111,6 +121,7 @@ public:
     return header_at<IPv4Header>(l3_offset());
   }
 
+  /** @brief Get IPv6 header view. */
   constexpr auto ip6_header() const noexcept -> HeaderView<IPv6Header> {
     auto et = ether_type();
     if (!et || *et != EtherType::IPv6) {
@@ -119,6 +130,7 @@ public:
     return header_at<IPv6Header>(l3_offset());
   }
 
+  /** @brief Get the number of bytes in the IPv4 header. */
   constexpr auto ip4_ihl_bytes() const noexcept -> std::optional<uint8_t> {
     auto ip = ip4_header();
     if (!ip) {
@@ -132,6 +144,7 @@ public:
     return bytes;
   }
 
+  /** @brief Get the IP protocol (IPv4 or IPv6). */
   constexpr auto ip_protocol() const noexcept -> std::optional<IpProtocol> {
     if (auto ip4 = ip4_header()) {
       return static_cast<IpProtocol>(ip4->protocol);
@@ -142,6 +155,7 @@ public:
     return std::nullopt;
   }
 
+  /** @brief Get the offset of the Layer 4 header. */
   constexpr auto l4_offset() const noexcept -> std::optional<uint16_t> {
     if (ip4_header()) {
       auto ihl = ip4_ihl_bytes();
@@ -156,6 +170,7 @@ public:
     return std::nullopt;
   }
 
+  /** @brief Get TCP header view. */
   constexpr auto tcp_header() const noexcept -> HeaderView<TCPHeader> {
     auto proto = ip_protocol();
     auto off = l4_offset();
@@ -168,6 +183,7 @@ public:
     return header_at<TCPHeader>(*off);
   }
 
+  /** @brief Get UDP header view. */
   constexpr auto udp_header() const noexcept -> HeaderView<UDPHeader> {
     auto proto = ip_protocol();
     auto off = l4_offset();
@@ -180,33 +196,29 @@ public:
     return header_at<UDPHeader>(*off);
   }
 
-  constexpr auto icmp4_header() const noexcept -> HeaderView<ICMPHeader> {
+  /** @brief Get ICMPv4 header view. */
+  constexpr auto icmp4_header() const noexcept -> HeaderView<ICMPv4Header> {
     auto proto = ip_protocol();
     auto off = l4_offset();
-    if (!proto || !off) {
+    if (!proto || !off || *proto != IpProtocol::ICMPv4) {
       return {};
     }
-    if (*proto != IpProtocol::ICMP && *proto != IpProtocol::ICMPv6) {
-      return {};
-    }
-    return header_at<ICMPHeader>(*off);
+
+    return header_at<ICMPv4Header>(*off);
   }
 
-  constexpr auto icmp6_header() const noexcept -> HeaderView<ICMPHeader> {
+  /** @brief Get ICMPv6 header view. */
+  constexpr auto icmp6_header() const noexcept -> HeaderView<ICMPv6Header> {
     auto proto = ip_protocol();
     auto off = l4_offset();
     if (!proto || !off || *proto != IpProtocol::ICMPv6) {
       return {};
     }
-    return header_at<ICMPHeader>(*off);
+
+    return header_at<ICMPv6Header>(*off);
   }
 
-  /**
-   * @brief Get SRv6 Header view if present.
-   *
-   * @return HeaderView<SRv6Header> if SRv6 header is present, empty optional
-   * otherwise.
-   */
+  /** @brief Get SRv6 Header view if present. */
   constexpr auto srv6_header() const noexcept -> HeaderView<SRv6Header> {
     auto ip6 = ip6_header();
     if (!ip6) {

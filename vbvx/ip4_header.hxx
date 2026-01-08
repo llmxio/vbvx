@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "auto_swap.hxx"
+#include "utils.hxx"
 #include "ip_protocol.hxx"
 #include "flags_view.hxx"
 

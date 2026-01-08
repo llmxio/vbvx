@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "header_view.hxx"
-#include "auto_swap.hxx"
+#include "utils.hxx"
 #include "vbvx/ip4_header.hxx"
 
 #include <array>
