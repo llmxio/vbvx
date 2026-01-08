@@ -1,10 +1,7 @@
 name: Build and Test
 
 on:
-  push:
-    branches: [ main, docs ]
-  pull_request:
-    branches: [ main ]
+  push: {}
 
 jobs:
   build-and-test:
@@ -19,7 +16,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ninja-build clang-format
+          sudo apt-get install -y --no-install-recommends cmake ninja-build
 
       - name: Configure
         run: cmake -G Ninja -B build -S . -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_TESTING=ON
