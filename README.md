@@ -1,5 +1,7 @@
 # VBVX - VPP Buffer View eXtensions
 
+[![Build and Test](https://github.com/llmxio/vbvx/actions/workflows/ci.yml/badge.svg)](https://github.com/llmxio/vbvx/actions/workflows/ci.yml)
+
 VBVX (VPP Buffer View eXtensions) is a small, header-only C++23 library for **zero-copy** parsing of packet buffers. It provides views over common on-wire headers (Ethernet, VLAN, ARP, IPv4/v6, TCP/UDP, ICMP, SRv6) without copying.
 
 ## About
