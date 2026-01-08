@@ -56,23 +56,23 @@ struct [[gnu::packed]] SRv6Header {
   constexpr auto segment_at(uint8_t idx) const noexcept
       -> std::span<const uint8_t, 16> {
     return std::span<const uint8_t, 16>{
-        segment_list_ptr() + (static_cast<size_t>(idx) * 16u), 16u};
+        segment_list_ptr() + (static_cast<uint16_t>(idx) * 16u), 16u};
   }
 
-  constexpr auto segment_list_bytes_len() const noexcept -> size_t {
-    return static_cast<size_t>(segments_count()) * 16u;
+  constexpr auto segment_list_bytes_len() const noexcept -> uint16_t {
+    return static_cast<uint16_t>(segments_count()) * 16u;
   }
 
-  constexpr auto tlv_offset() const noexcept -> size_t {
+  constexpr auto tlv_offset() const noexcept -> uint16_t {
     return 8u + segment_list_bytes_len();
   }
 
-  constexpr auto tlv_bytes_len() const noexcept -> size_t {
+  constexpr auto tlv_bytes_len() const noexcept -> uint16_t {
     auto total = header_length_bytes();
     if (total <= tlv_offset()) {
       return 0u;
     }
-    return static_cast<size_t>(total - tlv_offset());
+    return total - tlv_offset();
   }
 
   constexpr auto tlv_first_ptr() const noexcept -> const uint8_t* {
@@ -85,13 +85,13 @@ struct SRv6Tlv {
   uint8_t type;
   uint8_t length;
   const uint8_t* value;
-  size_t total_len;
+  uint16_t total_len;
 };
 
 /** @brief Iterator over TLVs in an SRH's TLV area. Does not allocate. */
 class SRv6TlvIterator {
 public:
-  constexpr SRv6TlvIterator(const uint8_t* ptr, size_t len) noexcept
+  constexpr SRv6TlvIterator(const uint8_t* ptr, uint16_t len) noexcept
       : ptr_{ptr}, len_{len}, pos_{0} {}
 
   constexpr bool next(SRv6Tlv& out) noexcept {
@@ -112,19 +112,19 @@ public:
     }
 
     const uint8_t len = ptr_[pos_ + 1u];
-    if (static_cast<size_t>(pos_) + 2u + static_cast<size_t>(len) > len_) {
+    if (static_cast<uint16_t>(pos_ + 2u + len) > len_) {
       return false;
     }
 
-    out = SRv6Tlv{t, len, ptr_ + pos_ + 2u, 2u + static_cast<size_t>(len)};
+    out = SRv6Tlv{t, len, ptr_ + pos_ + 2u, static_cast<uint16_t>(2u + len)};
     pos_ += out.total_len;
     return true;
   }
 
 private:
   const uint8_t* ptr_;
-  size_t len_;
-  size_t pos_;
+  uint16_t len_;
+  uint16_t pos_;
 };
 
 /**
@@ -134,7 +134,7 @@ private:
  */
 struct SRv6HmacTlvView {
   const uint8_t* value;
-  uint8_t length; // length of the variable data (as in the TLV length field)
+  uint8_t length;
 
   constexpr bool valid() const noexcept { return value && (length >= 6u); }
 
@@ -158,7 +158,7 @@ struct SRv6HmacTlvView {
     if (!valid())
       return {};
     const uint8_t* p = value + 6u;
-    return std::span<const uint8_t>{p, static_cast<size_t>(length - 6u)};
+    return std::span<const uint8_t>{p, static_cast<uint16_t>(length - 6u)};
   }
 };
 
