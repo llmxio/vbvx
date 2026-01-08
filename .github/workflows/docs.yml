@@ -1,4 +1,4 @@
-name: Build Documentation
+name: Build Docs
 
 on:
   push:
@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   build-docs:
-    name: Build documentation
     runs-on: ubuntu-latest
 
     environment:
@@ -31,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz cmake ninja-build python3 python3-distlib
+          sudo apt-get install -y graphviz cmake ninja-build
 
       - name: Cache Doxygen
         id: cache-doxygen
