@@ -9,7 +9,7 @@ VBVX (VPP Buffer View eXtensions) is a small, header-only C++23 library for **ze
 
 - **Purpose:** Safe, zero-copy access to common wire-protocol headers for packet parsing/inspection.
 - **Core abstractions:**
-  - `BufferView` - parses offsets and exposes header views and helper accessors (e.g., `ethertype()`, `l3_offset()`, `l4_offset()`).
+  - `BufferView` - parses offsets and exposes header views and helper accessors (e.g., `ether_type()`, `l3_offset()`, `l4_offset()`).
   - `HeaderView<H>` - lightweight wrapper around `const H*` with a `.copy()` helper when a local value is needed.
   - `FlagsView` / `ConstFlagsView` - zero-copy, chainable views for bitmask enums; enable operators by specializing `vbvx::enable_bitmask_operators<YourEnum>`.
   - `vbvx/*` - packed POD header structs with compile-time checks for layout and alignment.
