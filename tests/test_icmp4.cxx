@@ -8,8 +8,8 @@ using enum ICMPv4Type;
 
 class IcmpHeaderBytesFixture : public ::testing::Test {
 protected:
-  ICMPHeader tmp{};
-  std::array<uint8_t, sizeof(ICMPHeader)> raw{};
+  ICMPv4Header tmp{};
+  std::array<uint8_t, sizeof(ICMPv4Header)> raw{};
 
   void SetUp() override {
     tmp.type = static_cast<uint8_t>(EchoRequest);
@@ -18,13 +18,13 @@ protected:
     std::memcpy(raw.data(), &tmp, sizeof(tmp));
   }
 
-  HeaderView<ICMPHeader> hv_view() const {
-    return HeaderView<ICMPHeader>(raw.data());
+  HeaderView<ICMPv4Header> hv_view() const {
+    return HeaderView<ICMPv4Header>(raw.data());
   }
 };
 
 TEST(IcmpTypeTest, KnownTypes) {
-  ICMPHeader h{};
+  ICMPv4Header h{};
 
   h.type = 0;
   ASSERT_TRUE(h.type_known().has_value());
@@ -64,7 +64,7 @@ TEST(IcmpTypeTest, KnownTypes) {
 }
 
 TEST(IcmpTypeTest, UnassignedReturnsNullopt) {
-  ICMPHeader h{};
+  ICMPv4Header h{};
   h.type = 7; // unassigned
   EXPECT_FALSE(h.type_known().has_value());
 
@@ -73,9 +73,9 @@ TEST(IcmpTypeTest, UnassignedReturnsNullopt) {
 }
 
 TEST(IcmpHeaderTest, LayoutAndAlignment) {
-  static_assert(sizeof(ICMPHeader) == 4, "Wrong ICMP header size");
-  EXPECT_EQ(sizeof(ICMPHeader), 4u);
-  EXPECT_EQ(alignof(ICMPHeader), 1u);
+  static_assert(sizeof(ICMPv4Header) == 4, "Wrong ICMP header size");
+  EXPECT_EQ(sizeof(ICMPv4Header), 4u);
+  EXPECT_EQ(alignof(ICMPv4Header), 1u);
 }
 
 TEST_F(IcmpHeaderBytesFixture, HeaderFieldsParsed) {

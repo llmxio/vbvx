@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "vbvx/udp_header.hxx"
 #include "buffer_view.hxx"
-#include "auto_swap.hxx"
+#include "utils.hxx"
 #include "vbvx/ether.hxx"
 #include "vbvx/ip4_header.hxx"
 

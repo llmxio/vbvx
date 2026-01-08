@@ -12,7 +12,7 @@ namespace vbvx {
  */
 enum class IpProtocol : uint8_t {
   HOPOPT = 0,
-  ICMP = 1,
+  ICMPv4 = 1,
   IGMP = 2,
   GGP = 3,
   IPv4 = 4,

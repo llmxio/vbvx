@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <optional>
 
-#include "auto_swap.hxx"
+#include "utils.hxx"
 
 namespace vbvx {
 

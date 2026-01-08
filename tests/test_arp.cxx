@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include "vbvx/header_view.hxx"
-#include "vbvx/auto_swap.hxx"
+
 #include "vbvx/arp.hxx"
-#include "vbvx/ether.hxx"
 
 #include <array>
 #include <cstring>

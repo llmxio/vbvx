@@ -5,7 +5,7 @@
 #include <span>
 #include <cstring>
 
-#include "auto_swap.hxx"
+#include "utils.hxx"
 #include "ether.hxx"
 
 namespace vbvx {

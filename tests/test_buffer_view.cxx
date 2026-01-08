@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "buffer_view.hxx"
-#include "auto_swap.hxx"
+#include "utils.hxx"
 
 #include <array>
 #include <bit>
@@ -192,7 +192,8 @@ TEST(BufferViewTest, IPv4UdpHeaderPresent) {
 }
 
 TEST(BufferViewTest, IPv6Icmpv6) {
-  const auto total = sizeof(vbvx::EtherHeader) + 40 + sizeof(vbvx::ICMPHeader);
+  const auto total =
+      sizeof(vbvx::EtherHeader) + 40 + sizeof(vbvx::ICMPv4Header);
   std::vector<uint8_t> buf_bytes(total);
   std::memset(buf_bytes.data(), 0, buf_bytes.size());
 
@@ -206,7 +207,7 @@ TEST(BufferViewTest, IPv6Icmpv6) {
   // next_header field is at offset 6 within the IPv6 header
   buf_bytes[ip_off + 6] = static_cast<uint8_t>(IpProtocol::ICMPv6);
 
-  ICMPHeader icmp{};
+  ICMPv4Header icmp{};
   icmp.type = static_cast<uint8_t>(ICMPv4Type::EchoRequest);
   icmp.code = 0;
   icmp.set_checksum(0x1234);

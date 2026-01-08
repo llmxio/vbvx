@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <optional>
 
-#include "auto_swap.hxx"
+#include "utils.hxx"
 
 namespace vbvx {
 
@@ -61,7 +61,7 @@ enum class ICMPv4Type : uint8_t {
  * @see RFC 792:
  *   https://datatracker.ietf.org/doc/html/rfc792
  */
-struct [[gnu::packed]] ICMPHeader {
+struct [[gnu::packed]] ICMPv4Header {
   uint8_t type;
   uint8_t code;
   uint16_t checksum_be;
@@ -120,7 +120,7 @@ struct [[gnu::packed]] ICMPHeader {
   }
 };
 
-static_assert(sizeof(ICMPHeader) == 4, "Wrong ICMP header size");
-static_assert(alignof(ICMPHeader) == 1, "Wrong ICMP header alignment");
+static_assert(sizeof(ICMPv4Header) == 4, "Wrong ICMP header size");
+static_assert(alignof(ICMPv4Header) == 1, "Wrong ICMP header alignment");
 
 } // namespace vbvx
