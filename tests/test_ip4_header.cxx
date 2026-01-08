@@ -258,7 +258,7 @@ TEST(BufferViewIPv4MalformedTest, Ipv4HeaderTooShort) {
   eth->type_be = autoswap(std::to_underlying(EtherType::IPv4));
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  EXPECT_FALSE(buf.ipv4_header());
+  EXPECT_FALSE(buf.ip4_header());
   EXPECT_FALSE(buf.l4_offset());
   EXPECT_FALSE(buf.ip_protocol().has_value());
 }
@@ -279,7 +279,7 @@ TEST(BufferViewIPv4MalformedTest, Ipv4HeaderPresentAndL4Offset) {
       autoswap(static_cast<uint16_t>(sizeof(IPv4Header) + sizeof(UDPHeader)));
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   ASSERT_TRUE(buf.ip_protocol().has_value());
   EXPECT_EQ(buf.ip_protocol().value(), IpProtocol::UDP);
   ASSERT_TRUE(buf.l4_offset());
@@ -333,7 +333,7 @@ TEST(BufferViewIPv4MalformedTest, TcpOptionsTruncated) {
   tcp->data_offset = static_cast<uint8_t>((10u << 4) & 0xF0u);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   auto th = buf.tcp_header();
   ASSERT_TRUE(th);
   EXPECT_EQ(th->header_words(), 10u);
@@ -341,7 +341,7 @@ TEST(BufferViewIPv4MalformedTest, TcpOptionsTruncated) {
 
   const auto l3 = buf.l3_offset();
   ASSERT_EQ(l3, static_cast<uint16_t>(sizeof(EtherHeader)));
-  const auto ihl = buf.ipv4_ihl_bytes();
+  const auto ihl = buf.ip4_ihl_bytes();
   ASSERT_TRUE(ihl.has_value());
   const auto avail_transport = static_cast<uint16_t>(raw.size()) - (l3 + *ihl);
   // available transport bytes are smaller than declared header_bytes ->
@@ -370,7 +370,7 @@ TEST(BufferViewIPv4MalformedTest, TcpDataOffsetTooSmall) {
   tcp->data_offset = static_cast<uint8_t>((4u << 4) & 0xF0u);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   auto th = buf.tcp_header();
   // header_at requires at least 20 bytes so HeaderView exists, but data_offset
   // indicates invalid header size
@@ -399,7 +399,7 @@ TEST(BufferViewIPv4MalformedTest, UdpLengthTooSmallAndTooLarge) {
     uh->length_be = autoswap(static_cast<uint16_t>(4u)); // less than 8
 
     BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-    ASSERT_TRUE(buf.ipv4_header());
+    ASSERT_TRUE(buf.ip4_header());
     auto u = buf.udp_header();
     ASSERT_TRUE(u);
     EXPECT_LT(u->length(), static_cast<uint16_t>(sizeof(UDPHeader)));
@@ -427,12 +427,12 @@ TEST(BufferViewIPv4MalformedTest, UdpLengthTooSmallAndTooLarge) {
         static_cast<uint16_t>(512u)); // claims much larger than available
 
     BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-    ASSERT_TRUE(buf.ipv4_header());
+    ASSERT_TRUE(buf.ip4_header());
     auto u = buf.udp_header();
     ASSERT_TRUE(u);
 
     const auto l3 = buf.l3_offset();
-    const auto ihl = buf.ipv4_ihl_bytes();
+    const auto ihl = buf.ip4_ihl_bytes();
     ASSERT_TRUE(ihl.has_value());
     const auto ip_payload_bytes = static_cast<uint16_t>(
         ip->total_length_be ? ip->total_length_be / 1 : 0);
@@ -458,7 +458,7 @@ TEST(BufferViewIPv4MalformedTest, VlanIpv4Offset) {
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
   EXPECT_EQ(buf.l3_offset(),
             static_cast<uint16_t>(sizeof(EtherHeader) + sizeof(VlanHeader)));
-  EXPECT_TRUE(buf.ipv4_header());
+  EXPECT_TRUE(buf.ip4_header());
 }
 
 TEST(BufferViewIPv4MalformedTest, IpProtocolNullOnNonIpFrames) {
@@ -467,8 +467,8 @@ TEST(BufferViewIPv4MalformedTest, IpProtocolNullOnNonIpFrames) {
   eth->type_be = autoswap(std::to_underlying(EtherType::ARP));
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  EXPECT_FALSE(buf.ipv4_header());
-  EXPECT_FALSE(buf.ipv6_header());
+  EXPECT_FALSE(buf.ip4_header());
+  EXPECT_FALSE(buf.ip6_header());
   EXPECT_FALSE(buf.ip_protocol().has_value());
 }
 
@@ -485,8 +485,8 @@ TEST(BufferViewIPv4MalformedTest, Ipv4HeaderIhlTooSmall) {
   ip->protocol = static_cast<uint8_t>(IpProtocol::TCP);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
-  EXPECT_FALSE(buf.ipv4_ihl_bytes());
+  ASSERT_TRUE(buf.ip4_header());
+  EXPECT_FALSE(buf.ip4_ihl_bytes());
   EXPECT_FALSE(buf.l4_offset());
   // protocol is still readable from the header itself
   ASSERT_TRUE(buf.ip_protocol().has_value());

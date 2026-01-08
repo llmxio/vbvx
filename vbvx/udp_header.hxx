@@ -36,10 +36,19 @@ struct [[gnu::packed]] UDPHeader {
     return autoswap(checksum_be);
   }
 
-  void set_src_port(uint16_t v) noexcept { src_port_be = autoswap(v); }
-  void set_dst_port(uint16_t v) noexcept { dst_port_be = autoswap(v); }
-  void set_length(uint16_t v) noexcept { length_be = autoswap(v); }
-  void set_checksum(uint16_t v) noexcept { checksum_be = autoswap(v); }
+  constexpr void set_src_port(uint16_t v) noexcept {
+    src_port_be = autoswap(v);
+  }
+
+  constexpr void set_dst_port(uint16_t v) noexcept {
+    dst_port_be = autoswap(v);
+  }
+
+  constexpr void set_length(uint16_t v) noexcept { length_be = autoswap(v); }
+
+  constexpr void set_checksum(uint16_t v) noexcept {
+    checksum_be = autoswap(v);
+  }
 };
 
 static_assert(sizeof(UDPHeader) == 8, "Wrong UDP header size");

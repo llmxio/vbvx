@@ -34,12 +34,12 @@ TEST(BufferViewTest, EmptyBufferNullptr) {
   EXPECT_FALSE(buf.ether_header());
   EXPECT_FALSE(buf.ether_type().has_value());
   EXPECT_FALSE(buf.vlan_header());
-  EXPECT_FALSE(buf.ipv4_header());
-  EXPECT_FALSE(buf.ipv6_header());
+  EXPECT_FALSE(buf.ip4_header());
+  EXPECT_FALSE(buf.ip6_header());
   EXPECT_FALSE(buf.arp_header());
   EXPECT_FALSE(buf.tcp_header());
   EXPECT_FALSE(buf.udp_header());
-  EXPECT_FALSE(buf.icmp_header());
+  EXPECT_FALSE(buf.icmp4_header());
 }
 
 TEST(BufferViewTest, TruncatedEtherHeader) {
@@ -108,9 +108,9 @@ TEST(BufferViewTest, IPv4IhlTooSmall) {
   std::memcpy(data.data() + sizeof(EtherHeader), &ip, sizeof(ip));
 
   BufferView buf(data.data(), static_cast<uint16_t>(data.size()));
-  auto ip_hdr = buf.ipv4_header();
+  auto ip_hdr = buf.ip4_header();
   ASSERT_TRUE(ip_hdr); // header struct is present (bounds ok)
-  EXPECT_FALSE(buf.ipv4_ihl_bytes().has_value());
+  EXPECT_FALSE(buf.ip4_ihl_bytes().has_value());
   EXPECT_FALSE(buf.l4_offset().has_value());
   EXPECT_FALSE(buf.tcp_header());
 }
@@ -214,7 +214,7 @@ TEST(BufferViewTest, IPv6Icmpv6) {
 
   BufferView buf(buf_bytes.data(), static_cast<uint16_t>(buf_bytes.size()));
   EXPECT_EQ(buf.ip_protocol().value(), IpProtocol::ICMPv6);
-  auto ic = buf.icmpv6_header();
+  auto ic = buf.icmp6_header();
   ASSERT_TRUE(ic);
   EXPECT_EQ(ic->type_u8(), static_cast<uint8_t>(ICMPv4Type::EchoRequest));
   EXPECT_EQ(ic->checksum(), 0x1234u);

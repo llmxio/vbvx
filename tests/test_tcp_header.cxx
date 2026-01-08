@@ -145,7 +145,7 @@ TEST(TCPHeader, TcpOptionsExactlyFit) {
       static_cast<uint8_t>((6u << 4) & 0xF0u); // 6 words -> 24 bytes
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   auto th = buf.tcp_header();
   ASSERT_TRUE(th);
   EXPECT_EQ(th->header_words(), 6u);
@@ -153,7 +153,7 @@ TEST(TCPHeader, TcpOptionsExactlyFit) {
 
   const auto l3 = buf.l3_offset();
   ASSERT_EQ(l3, static_cast<uint16_t>(sizeof(EtherHeader)));
-  const auto ihl = buf.ipv4_ihl_bytes();
+  const auto ihl = buf.ip4_ihl_bytes();
   ASSERT_TRUE(ihl.has_value());
   const auto avail_transport = static_cast<uint16_t>(raw.size()) - (l3 + *ihl);
   EXPECT_EQ(avail_transport, th->header_bytes());
@@ -180,7 +180,7 @@ TEST(TCPHeader, TcpMaxDataOffsetTruncated) {
       static_cast<uint8_t>((15u << 4) & 0xF0u); // 15 words -> 60 bytes
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   auto th = buf.tcp_header();
   ASSERT_TRUE(th);
   EXPECT_EQ(th->header_words(), 15u);
@@ -188,7 +188,7 @@ TEST(TCPHeader, TcpMaxDataOffsetTruncated) {
 
   const auto l3 = buf.l3_offset();
   ASSERT_EQ(l3, static_cast<uint16_t>(sizeof(EtherHeader)));
-  const auto ihl = buf.ipv4_ihl_bytes();
+  const auto ihl = buf.ip4_ihl_bytes();
   ASSERT_TRUE(ihl.has_value());
   const auto avail_transport = static_cast<uint16_t>(raw.size()) - (l3 + *ihl);
   EXPECT_LT(avail_transport, th->header_bytes());
@@ -215,7 +215,7 @@ TEST(TCPHeader, DataOffsetLowNibbleIgnored) {
   tcp->data_offset = static_cast<uint8_t>(((7u << 4) & 0xF0u) | 0x0Fu);
 
   BufferView buf(raw.data(), static_cast<uint16_t>(raw.size()));
-  ASSERT_TRUE(buf.ipv4_header());
+  ASSERT_TRUE(buf.ip4_header());
   auto th = buf.tcp_header();
   ASSERT_TRUE(th);
   EXPECT_EQ(th->header_words(), 7u);
@@ -224,7 +224,7 @@ TEST(TCPHeader, DataOffsetLowNibbleIgnored) {
   EXPECT_TRUE(th->valid_min_size());
   const auto l3 = buf.l3_offset();
   ASSERT_EQ(l3, static_cast<uint16_t>(sizeof(EtherHeader)));
-  const auto ihl = buf.ipv4_ihl_bytes();
+  const auto ihl = buf.ip4_ihl_bytes();
   ASSERT_TRUE(ihl.has_value());
   const auto avail_transport = static_cast<uint16_t>(raw.size()) - (l3 + *ihl);
   EXPECT_EQ(avail_transport, th->header_bytes());
