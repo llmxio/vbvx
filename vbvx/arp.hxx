@@ -64,13 +64,11 @@ struct [[gnu::packed]] ArpHeader {
   }
 
   constexpr auto sender_ipv4_host() const noexcept -> uint32_t {
-    std::array<uint8_t, 4> a{spa[0], spa[1], spa[2], spa[3]};
-    return autoswap(std::bit_cast<uint32_t>(a));
+    return autoswap(read_from_bytes<uint32_t>(spa));
   }
 
   constexpr auto target_ipv4_host() const noexcept -> uint32_t {
-    std::array<uint8_t, 4> a{tpa[0], tpa[1], tpa[2], tpa[3]};
-    return autoswap(std::bit_cast<uint32_t>(a));
+    return autoswap(read_from_bytes<uint32_t>(tpa));
   }
 
   constexpr void set_opcode(ArpOpCode code) noexcept {

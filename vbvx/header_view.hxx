@@ -5,9 +5,9 @@
 
 namespace vbvx {
 
-template <typename T>
-concept WireHeader = std::is_trivially_copyable_v<T> &&
-                     std::is_standard_layout_v<T> && (alignof(T) == 1);
+template <typename _Tp>
+concept WireHeader = std::is_trivially_copyable_v<_Tp> &&
+                     std::is_standard_layout_v<_Tp> && (alignof(_Tp) == 1);
 
 /**
  * @brief A lightweight view over a header inside a packet buffer.

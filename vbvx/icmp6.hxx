@@ -66,10 +66,13 @@ enum class ICMPv6Type : uint8_t {
   Reserved = 255
 };
 
-/** @brief ICMPv6 header (type, code, checksum) (4 bytes).
- *  IANA: ICMPv6 Parameters
- * https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml IETF
- * RFC: RFC4443 https://datatracker.ietf.org/doc/html/rfc4443
+/**
+ * @brief ICMPv6 header (type, code, checksum) (4 bytes).
+ *
+ * @see IANA ICMPv6 Parameters:
+ *   https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml IETF
+ * @see RFC 4443:
+ *   https://datatracker.ietf.org/doc/html/rfc4443
  */
 struct [[gnu::packed]] ICMPv6Header {
   uint8_t type;

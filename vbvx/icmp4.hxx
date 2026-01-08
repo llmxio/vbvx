@@ -53,10 +53,13 @@ enum class ICMPv4Type : uint8_t {
   Reserved = 255
 };
 
-/** @brief ICMP header (type, code, checksum) (4 bytes).
- *  IANA: ICMP Parameters
- * https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml IETF
- * RFC: RFC792 https://datatracker.ietf.org/doc/html/rfc792
+/**
+ * @brief ICMP header (type, code, checksum) (4 bytes).
+ *
+ * @see IANA ICMP Parameters:
+ *   https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml IETF
+ * @see RFC 792:
+ *   https://datatracker.ietf.org/doc/html/rfc792
  */
 struct [[gnu::packed]] ICMPHeader {
   uint8_t type;
