@@ -141,16 +141,16 @@ struct SRv6HmacTlvView {
   constexpr bool d_bit() const noexcept {
     if (!valid())
       return false;
-    uint16_t b;
-    std::memcpy(&b, value, sizeof(b));
+
+    uint16_t b = read_from_bytes<uint16_t>(value);
     return ((autoswap(b) >> 15) & 0x1u) != 0u;
   }
 
   constexpr auto key_id() const noexcept -> uint32_t {
     if (!valid())
       return 0u;
-    uint32_t v;
-    std::memcpy(&v, value + 2u, sizeof(v));
+
+    uint32_t v = read_from_bytes<uint32_t>(value + 2u);
     return autoswap(v);
   }
 

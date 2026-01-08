@@ -47,9 +47,11 @@ struct [[gnu::packed]] IPv4Header {
   constexpr auto version() const noexcept -> uint8_t {
     return (version_ihl >> 4) & 0x0Fu;
   }
+
   constexpr auto ihl_words() const noexcept -> uint16_t {
     return version_ihl & 0x0Fu;
   }
+
   constexpr auto ihl_bytes() const noexcept -> uint16_t {
     return ihl_words() * 4u;
   }
@@ -134,9 +136,7 @@ struct [[gnu::packed]] IPv4Header {
   }
 
   constexpr void set_src(uint32_t v) noexcept { src_addr_be = autoswap(v); }
-
   constexpr void set_dst(uint32_t v) noexcept { dst_addr_be = autoswap(v); }
-
   constexpr bool valid_min_size() const noexcept { return ihl_bytes() >= 20; }
 
 private:
