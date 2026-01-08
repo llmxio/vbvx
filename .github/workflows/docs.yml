@@ -49,10 +49,14 @@ jobs:
           echo "${DOXYGEN_SHA256}  doxygen.tgz" | sha256sum -c -
           mkdir -p ~/.local
           tar -xzf doxygen.tgz -C ~/.local
+          ls -l $HOME/.local/
 
       - name: Put Doxygen on PATH
         run: |
           echo "$HOME/.local/doxygen-${DOXYGEN_VER}/bin" >> "$GITHUB_PATH"
+
+      - name: Check Doxygen on PATH
+        run: |
           doxygen --version
 
       - name: Configure (CMake)
