@@ -198,4 +198,4 @@ Notes: No allocation, no indirection: it just operates on the underlying enum va
 
 ## License & Acknowledgements
 
-This project is licensed under MIT license. Full terms are in the `LICENSE` file.
+Full terms are in the `LICENSE` file.
