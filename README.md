@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo.png" alt="VBVX logo"></p>
+
 # VBVX - VPP Buffer View eXtensions
 
 [![Build and Test](https://github.com/llmxio/vbvx/actions/workflows/test.yml/badge.svg)](https://github.com/llmxio/vbvx/actions/workflows/test.yml)
