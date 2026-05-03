@@ -220,3 +220,26 @@ TEST(BufferViewTest, IPv6Icmpv6) {
   EXPECT_EQ(ic->type_u8(), static_cast<uint8_t>(ICMPv4Type::EchoRequest));
   EXPECT_EQ(ic->checksum(), 0x1234u);
 }
+
+TEST(BufferViewTest, Srv6HeaderRequiresRoutingType4) {
+  const auto total =
+      sizeof(EtherHeader) + sizeof(IPv6Header) + sizeof(SRv6Header);
+  std::vector<uint8_t> buf_bytes(total, 0u);
+
+  EtherHeader eth_tmp{};
+  eth_tmp.type_be = autoswap(std::to_underlying(EtherType::IPv6));
+  std::memcpy(buf_bytes.data(), &eth_tmp, sizeof(eth_tmp));
+
+  const auto ip_off = sizeof(EtherHeader);
+  const uint32_t ver_be = autoswap(static_cast<uint32_t>(6u << 28));
+  std::memcpy(buf_bytes.data() + ip_off, &ver_be, sizeof(ver_be));
+  buf_bytes[ip_off + 6] = static_cast<uint8_t>(IpProtocol::IPv6_Route);
+
+  SRv6Header rh{};
+  rh.hdr_ext_len = 0;
+  rh.routing_type = 0; // not SRH
+  std::memcpy(buf_bytes.data() + ip_off + sizeof(IPv6Header), &rh, sizeof(rh));
+
+  BufferView buf(buf_bytes.data(), static_cast<uint16_t>(buf_bytes.size()));
+  EXPECT_FALSE(buf.srv6_header());
+}
