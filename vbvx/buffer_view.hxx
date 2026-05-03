@@ -229,7 +229,11 @@ public:
     }
 
     auto offset = static_cast<uint16_t>(l3_offset() + sizeof(IPv6Header));
-    return header_at<SRv6Header>(offset);
+    auto srh = header_at<SRv6Header>(offset);
+    if (!srh || !srh->is_valid_routing_type()) {
+      return {};
+    }
+    return srh;
   }
 
 private:

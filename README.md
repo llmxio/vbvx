@@ -137,26 +137,45 @@ Notes:
 
 vbvx::BufferView buf(packet_data, packet_len);
 if (auto srh = buf.srv6_header()) {
-  if (!srh->is_valid_routing_type()) {
-    // Not an SRH (routing type mismatch)
-  } else {
+  // Optional but recommended: validate SRH metadata against available bytes.
+  // packet_remaining_len is from SRH start to end of packet buffer.
+  const uint16_t packet_remaining_len =
+      static_cast<uint16_t>(packet_len - (buf.l3_offset() + sizeof(vbvx::IPv6Header)));
+
+  if (srh->validate_srh_bounds(packet_remaining_len)) {
     // Number of 128-bit SIDs in the segment list
     auto n = srh->segments_count();
 
-    // Access the first SID (returns std::span<const uint8_t, 16>)
-    auto first_sid = srh->segment_at(0);
+    // Safe segment access (std::optional<std::span<const uint8_t, 16>>)
+    if (auto first_sid = srh->safe_segment_at(0, packet_remaining_len)) {
+      // use first_sid->data()/first_sid->size()
+    }
 
-    // Iterate TLVs without allocation
-    vbvx::SRv6TlvIterator it(srh->tlv_first_ptr(), srh->tlv_bytes_len());
-    vbvx::SRv6Tlv t;
-    while (it.next(t)) {
-      // handle t.type, t.length and t.value
+    // Safe TLV region extraction
+    if (auto tlvs = srh->safe_tlv_region(packet_remaining_len)) {
+      vbvx::SRv6TlvIterator it(tlvs->data(), static_cast<uint16_t>(tlvs->size()));
+      vbvx::SRv6Tlv t;
+      while (it.next(t)) {
+        // handle t.type, t.length and t.value
+      }
     }
   }
 }
 ```
 
-- Note: `BufferView::srv6_header()` returns an SRH only when the IPv6 Next Header is Routing (43) and the SRH is the first extension header.
+- Note: `BufferView::srv6_header()` returns an SRH only when the IPv6 Next Header is Routing (43), the SRH is the first extension header, and `routing_type == 4`.
+- Advanced usage (unchecked): if you fully trust packet provenance and want minimal checks, you can iterate with `tlv_first_ptr()` / `tlv_bytes_len()` directly:
+
+```cpp
+if (auto srh = buf.srv6_header()) {
+  // Advanced usage: raw/unchecked TLV walk.
+  vbvx::SRv6TlvIterator it(srh->tlv_first_ptr(), srh->tlv_bytes_len());
+  vbvx::SRv6Tlv t;
+  while (it.next(t)) {
+    // handle t
+  }
+}
+```
 - When adding SRv6 features/tests, follow the existing pattern: raw byte arrays in wire order + `HeaderView`/`BufferView` assertions.
 
 ## FlagsView

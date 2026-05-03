@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <span>
 
 #include "utils.hxx"
@@ -67,6 +68,47 @@ struct [[gnu::packed]] SRv6Header {
     return 8u + segment_list_bytes_len();
   }
 
+  /**
+   * @brief Return the maximum valid Last Entry derived from Hdr Ext Len.
+   *
+   * For SRH, max_LE is computed as `(Hdr Ext Len / 2) - 1`.
+   */
+  constexpr auto max_last_entry() const noexcept -> uint8_t {
+    return (hdr_ext_len < 2u) ? 0u
+                              : static_cast<uint8_t>((hdr_ext_len / 2u) - 1u);
+  }
+
+  /**
+   * @brief Validate SRH structural metadata against available packet bytes.
+   *
+   * @param packet_remaining_len Bytes available from this SRH pointer to the
+   * end of packet buffer.
+   * @return `true` when SRH metadata is internally consistent and bounded.
+   */
+  constexpr bool
+  validate_srh_bounds(uint16_t packet_remaining_len) const noexcept {
+    const uint16_t hdr_len = header_length_bytes();
+    if (hdr_len < 8u || (hdr_len % 8u) != 0u) {
+      return false;
+    }
+    if (packet_remaining_len < hdr_len) {
+      return false;
+    }
+    if (hdr_ext_len < 2u) {
+      return false;
+    }
+    if (last_entry > max_last_entry()) {
+      return false;
+    }
+    if (segments_left > static_cast<uint8_t>(last_entry + 1u)) {
+      return false;
+    }
+    if (tlv_offset() > hdr_len) {
+      return false;
+    }
+    return true;
+  }
+
   constexpr auto tlv_bytes_len() const noexcept -> uint16_t {
     auto total = header_length_bytes();
     if (total <= tlv_offset()) {
@@ -77,6 +119,41 @@ struct [[gnu::packed]] SRv6Header {
 
   constexpr auto tlv_first_ptr() const noexcept -> const uint8_t* {
     return reinterpret_cast<const uint8_t*>(this) + tlv_offset();
+  }
+
+  /**
+   * @brief Return a bounded TLV-byte view when SRH validation succeeds.
+   *
+   * @param packet_remaining_len Bytes available from this SRH pointer to the
+   * end of packet buffer.
+   * @return TLV span on success; `std::nullopt` for invalid SRH metadata.
+   */
+  constexpr auto safe_tlv_region(uint16_t packet_remaining_len) const noexcept
+      -> std::optional<std::span<const uint8_t>> {
+    if (!validate_srh_bounds(packet_remaining_len)) {
+      return std::nullopt;
+    }
+    return std::span<const uint8_t>{tlv_first_ptr(), tlv_bytes_len()};
+  }
+
+  /**
+   * @brief Return a segment view only when SRH validation succeeds.
+   *
+   * @param idx Segment index in encoded SRH Segment List order.
+   * @param packet_remaining_len Bytes available from this SRH pointer to the
+   * end of packet buffer.
+   * @return Segment span on success; `std::nullopt` when invalid/out-of-range.
+   */
+  constexpr auto safe_segment_at(uint8_t idx,
+                                 uint16_t packet_remaining_len) const noexcept
+      -> std::optional<std::span<const uint8_t, 16>> {
+    if (!validate_srh_bounds(packet_remaining_len)) {
+      return std::nullopt;
+    }
+    if (idx >= segments_count()) {
+      return std::nullopt;
+    }
+    return segment_at(idx);
   }
 };
 
