@@ -11,7 +11,7 @@ add_library(vbvx::vbvx ALIAS vbvx)
 target_include_directories(vbvx INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vbvx>
-  $<INSTALL_INTERFACE:include/vbvx>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 # Require C++23 for consumers when using this target
@@ -36,7 +36,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_DO
 # Export target for use by find_package
 install(TARGETS vbvx
         EXPORT VBVXTargets
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vbvx)
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Create and install the export file and package config
 set(CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/VBVX")
@@ -45,6 +45,7 @@ set(CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/VBVX")
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/VBVXConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/VBVXConfig.cmake
   INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}
+  PATH_VARS CMAKE_INSTALL_INCLUDEDIR
 )
 
 write_basic_package_version_file(

@@ -23,6 +23,7 @@ add_executable(vbvx_tests
   test_srv6_header.cxx
   test_srv6_tlv.cxx
   test_tcp_header.cxx
+  test_udp_header.cxx
   test_header_view.cxx
   test_flags_view.cxx
 )
