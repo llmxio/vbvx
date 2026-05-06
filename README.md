@@ -1,4 +1,6 @@
-<p align="center"><img src="docs/logo.png" alt="VBVX logo"></p>
+<!-- markdownlint-disable MD033 MD041 -->
+
+<p align="center"><img src="https://github.com/llmxio/vbvx/raw/main/docs/logo.png" alt="VBVX logo"></p>
 
 # VBVX - VPP Buffer View eXtensions
 
@@ -176,6 +178,7 @@ if (auto srh = buf.srv6_header()) {
   }
 }
 ```
+
 - When adding SRv6 features/tests, follow the existing pattern: raw byte arrays in wire order + `HeaderView`/`BufferView` assertions.
 
 ## FlagsView
