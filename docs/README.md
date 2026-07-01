@@ -1,6 +1,7 @@
 # Documentation
 
 This directory contains the Doxygen template used to generate the API docs for the project.
+Harness instructions for agents live in the `docs/harness-*.md` files.
 
 To build the docs locally:
 
